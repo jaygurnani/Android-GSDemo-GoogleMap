@@ -1,5 +1,4 @@
 package com.dji.GSDemo.GoogleMap;
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
