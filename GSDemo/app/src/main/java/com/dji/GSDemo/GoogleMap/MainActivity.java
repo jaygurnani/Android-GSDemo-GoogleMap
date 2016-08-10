@@ -2,17 +2,21 @@ package com.dji.GSDemo.GoogleMap;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -28,9 +32,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import dji.sdk.Battery.DJIBattery;
 import dji.sdk.FlightController.DJIFlightController;
 import dji.sdk.FlightController.DJIFlightControllerDataType;
 import dji.sdk.FlightController.DJIFlightControllerDelegate;
@@ -51,10 +61,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private Button locate, add, clear;
     private Button config, prepare, start, stop;
+    private Button startTimer, stopTimer, exportData;
+    public Timer timerFunc;
 
     private boolean isAdd = false;
 
     private double droneLocationLat = 181, droneLocationLng = 181;
+    private float droneLocationAlt = 0;
     private final Map<Integer, Marker> mMarkers = new ConcurrentHashMap<Integer, Marker>();
     private Marker droneMarker = null;
 
@@ -67,6 +80,19 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private DJIWaypointMission.DJIWaypointMissionFinishedAction mFinishedAction = DJIWaypointMission.DJIWaypointMissionFinishedAction.NoAction;
     private DJIWaypointMission.DJIWaypointMissionHeadingMode mHeadingMode = DJIWaypointMission.DJIWaypointMissionHeadingMode.Auto;
+
+    //DbHelper
+    private DbHelper mHelper;
+    private SQLiteDatabase mDb;
+
+    //Edit Texts
+    private EditText editText, timeInput;
+
+    //Contexts
+    private Context context;
+
+    //Battery Percentages
+    private int batteryPercent, batteryVoltage;
 
     @Override
     protected void onResume(){
@@ -112,6 +138,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         prepare = (Button) findViewById(R.id.prepare);
         start = (Button) findViewById(R.id.start);
         stop = (Button) findViewById(R.id.stop);
+        startTimer = (Button) findViewById(R.id.startTimer);
+        stopTimer = (Button) findViewById(R.id.stopTimer);
+        exportData = (Button) findViewById(R.id.exportData);
+
+        //Other content
+        editText = (EditText) findViewById(R.id.editText);
+        timeInput = (EditText) findViewById(R.id.timeInput);
 
         locate.setOnClickListener(this);
         add.setOnClickListener(this);
@@ -120,12 +153,25 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         prepare.setOnClickListener(this);
         start.setOnClickListener(this);
         stop.setOnClickListener(this);
-
+        startTimer.setOnClickListener(this);
+        stopTimer.setOnClickListener(this);
+        exportData.setOnClickListener(this);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //DBHelper
+        mHelper = new DbHelper(this);
+        mDb = mHelper.getWritableDatabase();
+
+        //Editable Data
+        editText = (EditText) findViewById(R.id.editText);
+        timeInput = (EditText) findViewById(R.id.timeInput);
+
+        //Context
+        context = this;
 
         // When the compile and target version is higher than 22, please request the
         // following permissions at runtime to ensure the
@@ -155,6 +201,48 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+    }
+
+    //Start Sampler
+    public void StartSampler(int timeInterval){
+        final int timeIntervalFinal = timeInterval;
+
+        final Handler handler = new Handler();
+        timerFunc = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @SuppressWarnings("unchecked")
+                    public void run() {
+                        try {
+                            //Start Logging
+                            LogToDB(batteryPercent, batteryVoltage, droneLocationLng, droneLocationLat, droneLocationAlt, editText.getText().toString());
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        };
+        timerFunc.schedule(doAsynchronousTask, 0, timeIntervalFinal);
+    }
+
+    //Log to Database
+    public void LogToDB(int batteryPercentage, int voltage, double lon, double lat, double alt, String method){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        ContentValues cv = new ContentValues(6);
+        cv.put(mHelper.COL_BATTERY, batteryPercentage);
+        cv.put(mHelper.COL_VOLT, voltage);
+        cv.put(mHelper.COL_LONG, lon);
+        cv.put(mHelper.COL_LAT, lat);
+        cv.put(mHelper.COL_ALT, alt);
+        cv.put(mHelper.COL_METHOD, method);
+        cv.put(mHelper.COL_DATE, dateFormat.format(new Date()));
+
+        mDb.insert(mHelper.TABLE_NAME, null, cv);
     }
 
     protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -205,6 +293,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 public void onResult(DJIFlightControllerDataType.DJIFlightControllerCurrentState state) {
                     droneLocationLat = state.getAircraftLocation().getLatitude();
                     droneLocationLng = state.getAircraftLocation().getLongitude();
+                    droneLocationAlt = state.getAircraftLocation().getAltitude();
                     updateDroneLocation();
                 }
             });
@@ -323,9 +412,53 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 stopWaypointMission();
                 break;
             }
+
+            case R.id.startTimer:{
+                startTimerToast();
+                break;
+            }
+
+            case R.id.stopTimer:{
+                stopTimerToast();
+                break;
+            }
+
+            case R.id.exportData:{
+                exportDataToast();
+                break;
+            }
+
             default:
                 break;
         }
+    }
+
+    private void startTimerToast(){
+        //Setup the Battery Call back method
+        DJIDemoApplication.getProductInstance().getBattery().setBatteryStateUpdateCallback(
+                new DJIBattery.DJIBatteryStateUpdateCallback() {
+                    @Override
+                    public void onResult(DJIBattery.DJIBatteryState djiBatteryState) {
+
+                        batteryPercent = djiBatteryState.getBatteryEnergyRemainingPercent();
+                        batteryVoltage = djiBatteryState.getCurrentVoltage();
+                    }
+                }
+        );
+
+        //Start the sampler
+        StartSampler(Integer.parseInt(timeInput.getText().toString()));
+        setResultToToast("Sampler Started");
+    }
+
+    private void stopTimerToast(){
+        timerFunc.cancel();
+        setResultToToast("Sampler Stopped");
+    }
+
+    private void exportDataToast(){
+        mHelper.exportDB(context);
+        setResultToToast("Data Exported");
     }
 
     private void cameraUpdate(){

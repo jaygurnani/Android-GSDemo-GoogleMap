@@ -9,6 +9,8 @@ import android.support.multidex.MultiDex;
 import android.util.Log;
 import android.widget.Toast;
 
+import dji.sdk.Products.DJIAircraft;
+import dji.sdk.Products.DJIHandHeld;
 import dji.sdk.SDKManager.DJISDKManager;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
