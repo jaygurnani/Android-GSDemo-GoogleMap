@@ -27,6 +27,7 @@ public class DbHelper extends SQLiteOpenHelper {
     public static final String COL_ALT = "Altitude";
     public static final String COL_BATTERY = "Battery";
     public static final String COL_VOLT = "Voltage";
+    public static final String COL_CURR = "Current";
     public static final String COL_DATE = "Date";
     public static final String COL_METHOD = "Method";
 
@@ -45,6 +46,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 + COL_ALT + " INTEGER, "
                 + COL_BATTERY + " INTEGER, "
                 + COL_VOLT + " INTEGER, "
+                + COL_CURR + " INTEGER, "
                 + COL_DATE + " DATE, "
                 + COL_METHOD + " TEXT);";
 

@@ -92,7 +92,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private Context context;
 
     //Battery Percentages
-    private int batteryPercent, batteryVoltage;
+    private int batteryPercent, batteryVoltage, batteryCurrent;
 
     @Override
     protected void onResume(){
@@ -217,7 +217,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     public void run() {
                         try {
                             //Start Logging
-                            LogToDB(batteryPercent, batteryVoltage, droneLocationLng, droneLocationLat, droneLocationAlt, editText.getText().toString());
+                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, editText.getText().toString());
                         }
                         catch (Exception e) {
                             e.printStackTrace();
@@ -230,12 +230,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     //Log to Database
-    public void LogToDB(int batteryPercentage, int voltage, double lon, double lat, double alt, String method){
+    public void LogToDB(int batteryPercentage, int batteryVoltage, int batteryCurrent, double lon, double lat, double alt, String method){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         ContentValues cv = new ContentValues(6);
         cv.put(mHelper.COL_BATTERY, batteryPercentage);
-        cv.put(mHelper.COL_VOLT, voltage);
+        cv.put(mHelper.COL_VOLT, batteryVoltage);
+        cv.put(mHelper.COL_CURR, batteryCurrent);
         cv.put(mHelper.COL_LONG, lon);
         cv.put(mHelper.COL_LAT, lat);
         cv.put(mHelper.COL_ALT, alt);
@@ -442,6 +443,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
                         batteryPercent = djiBatteryState.getBatteryEnergyRemainingPercent();
                         batteryVoltage = djiBatteryState.getCurrentVoltage();
+                        batteryCurrent = djiBatteryState.getCurrentCurrent();
                     }
                 }
         );
