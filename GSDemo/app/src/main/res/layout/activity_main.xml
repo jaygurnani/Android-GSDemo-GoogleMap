@@ -106,13 +106,6 @@
             android:text="Type"
             android:layout_weight="0.9"/>
 
-        <EditText
-            android:id="@+id/timeInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="2000"
-            android:layout_weight="0.9"/>
-
     </LinearLayout>
 
     <fragment

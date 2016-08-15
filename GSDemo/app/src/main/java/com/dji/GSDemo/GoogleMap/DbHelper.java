@@ -16,7 +16,7 @@ import java.nio.channels.FileChannel;
  */
 public class DbHelper extends SQLiteOpenHelper {
 
-    private static final int DB_VERSION = 5;
+    private static final int DB_VERSION = 6;
 
     private static final String DB_NAME = "SensorData.db";
 
@@ -30,6 +30,9 @@ public class DbHelper extends SQLiteOpenHelper {
     public static final String COL_CURR = "Current";
     public static final String COL_DATE = "Date";
     public static final String COL_METHOD = "Method";
+    public static final String COL_VEL_X = "VelocityX";
+    public static final String COL_VEL_Y = "VelocityY";
+    public static final String COL_VEL_Z = "VelocityZ";
 
 
 
@@ -40,10 +43,13 @@ public class DbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         //Create the DB
-        final String STRING_CREATE = "CREATE TABLE " + TABLE_NAME + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        final String STRING_CREATE = "CREATE TABLE " + TABLE_NAME + " (id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_LONG + " INTEGER, "
                 + COL_LAT + " INTEGER, "
                 + COL_ALT + " INTEGER, "
+                + COL_VEL_X + " INTEGER, "
+                + COL_VEL_Y + " INTEGER, "
+                + COL_VEL_Z + " INTEGER, "
                 + COL_BATTERY + " INTEGER, "
                 + COL_VOLT + " INTEGER, "
                 + COL_CURR + " INTEGER, "

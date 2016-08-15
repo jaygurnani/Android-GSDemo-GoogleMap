@@ -68,6 +68,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private double droneLocationLat = 181, droneLocationLng = 181;
     private float droneLocationAlt = 0;
+    private float droneVelocityX, droneVelocityY, droneVelocityZ;
     private final Map<Integer, Marker> mMarkers = new ConcurrentHashMap<Integer, Marker>();
     private Marker droneMarker = null;
 
@@ -86,7 +87,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private SQLiteDatabase mDb;
 
     //Edit Texts
-    private EditText editText, timeInput;
+    private EditText editText;
 
     //Contexts
     private Context context;
@@ -144,7 +145,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         //Other content
         editText = (EditText) findViewById(R.id.editText);
-        timeInput = (EditText) findViewById(R.id.timeInput);
 
         locate.setOnClickListener(this);
         add.setOnClickListener(this);
@@ -168,7 +168,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         //Editable Data
         editText = (EditText) findViewById(R.id.editText);
-        timeInput = (EditText) findViewById(R.id.timeInput);
 
         //Context
         context = this;
@@ -217,7 +216,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     public void run() {
                         try {
                             //Start Logging
-                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, editText.getText().toString());
+                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, droneVelocityX, droneVelocityY, droneVelocityZ, editText.getText().toString());
                         }
                         catch (Exception e) {
                             setResultToToast(e.getMessage().toString());
@@ -230,7 +229,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     //Log to Database
-    public void LogToDB(int batteryPercentage, int batteryVoltage, int batteryCurrent, double lon, double lat, double alt, String method){
+    public void LogToDB(int batteryPercentage, int batteryVoltage, int batteryCurrent, double lon, double lat, double alt, float droneVelocityX, float droneVelocityY, float droneVelocityZ, String method){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         ContentValues cv = new ContentValues(6);
@@ -240,6 +239,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         cv.put(mHelper.COL_LONG, lon);
         cv.put(mHelper.COL_LAT, lat);
         cv.put(mHelper.COL_ALT, alt);
+        cv.put(mHelper.COL_VEL_X, droneVelocityX);
+        cv.put(mHelper.COL_VEL_Y, droneVelocityY);
+        cv.put(mHelper.COL_VEL_Z, droneVelocityZ);
         cv.put(mHelper.COL_METHOD, method);
         cv.put(mHelper.COL_DATE, dateFormat.format(new Date()));
 
@@ -295,6 +297,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     droneLocationLat = state.getAircraftLocation().getLatitude();
                     droneLocationLng = state.getAircraftLocation().getLongitude();
                     droneLocationAlt = state.getAircraftLocation().getAltitude();
+                    droneVelocityX = state.getVelocityX();
+                    droneVelocityY = state.getVelocityX();
+                    droneVelocityZ = state.getVelocityX();
                     updateDroneLocation();
                 }
             });
@@ -451,8 +456,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             setResultToToast(exception.getMessage().toString());
         }
 
-        //Start the sampler
-        StartSampler(Integer.parseInt(timeInput.getText().toString()));
+        //Start the sampler - Hard code this to be once a second
+        StartSampler(1000);
         setResultToToast("Sampler Started");
     }
 
