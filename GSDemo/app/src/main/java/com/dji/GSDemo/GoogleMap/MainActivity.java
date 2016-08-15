@@ -92,7 +92,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private Context context;
 
     //Battery Percentages
-    private int batteryPercent, batteryVoltage, batteryCurrent;
+    public int batteryPercent, batteryVoltage, batteryCurrent;
 
     @Override
     protected void onResume(){
@@ -220,7 +220,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                             LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, editText.getText().toString());
                         }
                         catch (Exception e) {
-                            e.printStackTrace();
+                            setResultToToast(e.getMessage().toString());
                         }
                     }
                 });
@@ -436,17 +436,20 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private void startTimerToast(){
         //Setup the Battery Call back method
-        DJIDemoApplication.getProductInstance().getBattery().setBatteryStateUpdateCallback(
-                new DJIBattery.DJIBatteryStateUpdateCallback() {
-                    @Override
-                    public void onResult(DJIBattery.DJIBatteryState djiBatteryState) {
-
-                        batteryPercent = djiBatteryState.getBatteryEnergyRemainingPercent();
-                        batteryVoltage = djiBatteryState.getCurrentVoltage();
-                        batteryCurrent = djiBatteryState.getCurrentCurrent();
+        try {
+            DJIDemoApplication.getProductInstance().getBattery().setBatteryStateUpdateCallback(
+                    new DJIBattery.DJIBatteryStateUpdateCallback() {
+                        @Override
+                        public void onResult(DJIBattery.DJIBatteryState djiBatteryState) {
+                            batteryPercent = djiBatteryState.getBatteryEnergyRemainingPercent();
+                            batteryVoltage = djiBatteryState.getCurrentVoltage();
+                            batteryCurrent = djiBatteryState.getCurrentCurrent();
+                        }
                     }
-                }
-        );
+            );
+        } catch (Exception exception) {
+            setResultToToast(exception.getMessage().toString());
+        }
 
         //Start the sampler
         StartSampler(Integer.parseInt(timeInput.getText().toString()));
