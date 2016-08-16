@@ -34,7 +34,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -87,7 +86,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private SQLiteDatabase mDb;
 
     //Edit Texts
-    private EditText editText;
+    private EditText editText, loopCount;
 
     //Contexts
     private Context context;
@@ -145,6 +144,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         //Other content
         editText = (EditText) findViewById(R.id.editText);
+        loopCount = (EditText) findViewById(R.id.loopCount);
 
         locate.setOnClickListener(this);
         add.setOnClickListener(this);
@@ -168,6 +168,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         //Editable Data
         editText = (EditText) findViewById(R.id.editText);
+        loopCount = (EditText) findViewById(R.id.loopCount);
 
         //Context
         context = this;
@@ -407,6 +408,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 break;
             }
             case R.id.prepare:{
+                if(mWaypointMission != null){
+                    mWaypointMission.repeatNum = Integer.parseInt(loopCount.getText().toString());
+                }
                 prepareWayPointMission();
                 break;
             }
@@ -507,6 +511,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     mSpeed = 5.0f;
                 } else if (checkedId == R.id.HighSpeed){
                     mSpeed = 10.0f;
+                } else if (checkedId == R.id.MaxSpeed){
+                    mSpeed = 14.0f;
                 }
             }
 
