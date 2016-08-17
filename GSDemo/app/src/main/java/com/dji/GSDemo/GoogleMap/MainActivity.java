@@ -40,6 +40,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dji.sdk.Battery.DJIBattery;
+import dji.sdk.FlightController.DJICompass;
 import dji.sdk.FlightController.DJIFlightController;
 import dji.sdk.FlightController.DJIFlightControllerDataType;
 import dji.sdk.FlightController.DJIFlightControllerDelegate;
@@ -68,6 +69,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private double droneLocationLat = 181, droneLocationLng = 181;
     private float droneLocationAlt = 0;
     private float droneVelocityX, droneVelocityY, droneVelocityZ;
+    private double droneHeading;
     private final Map<Integer, Marker> mMarkers = new ConcurrentHashMap<Integer, Marker>();
     private Marker droneMarker = null;
 
@@ -77,6 +79,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private DJIWaypointMission mWaypointMission;
     private DJIMissionManager mMissionManager;
     private DJIFlightController mFlightController;
+    private DJICompass mCompass;
 
     private DJIWaypointMission.DJIWaypointMissionFinishedAction mFinishedAction = DJIWaypointMission.DJIWaypointMissionFinishedAction.NoAction;
     private DJIWaypointMission.DJIWaypointMissionHeadingMode mHeadingMode = DJIWaypointMission.DJIWaypointMissionHeadingMode.Auto;
@@ -224,7 +227,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     public void run() {
                         try {
                             //Start Logging
-                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, droneVelocityX, droneVelocityY, droneVelocityZ, editText.getText().toString());
+                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, editText.getText().toString());
                         }
                         catch (Exception e) {
                             setResultToToast(e.getMessage().toString());
@@ -237,7 +240,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     //Log to Database
-    public void LogToDB(int batteryPercentage, int batteryVoltage, int batteryCurrent, double lon, double lat, double alt, float droneVelocityX, float droneVelocityY, float droneVelocityZ, String method){
+    public void LogToDB(int batteryPercentage, int batteryVoltage, int batteryCurrent, double lon, double lat, double alt, float droneVelocityX, float droneVelocityY, float droneVelocityZ, double droneHeading, String method){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         ContentValues cv = new ContentValues(6);
@@ -250,6 +253,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         cv.put(mHelper.COL_VEL_X, droneVelocityX);
         cv.put(mHelper.COL_VEL_Y, droneVelocityY);
         cv.put(mHelper.COL_VEL_Z, droneVelocityZ);
+        cv.put(mHelper.COL_HEADING, droneHeading);
         cv.put(mHelper.COL_METHOD, method);
         cv.put(mHelper.COL_DATE, dateFormat.format(new Date()));
 
@@ -298,8 +302,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
 
         if (mFlightController != null) {
+            mCompass = mFlightController.getCompass();
             mFlightController.setUpdateSystemStateCallback(new DJIFlightControllerDelegate.FlightControllerUpdateSystemStateCallback() {
-
                 @Override
                 public void onResult(DJIFlightControllerDataType.DJIFlightControllerCurrentState state) {
                     droneLocationLat = state.getAircraftLocation().getLatitude();
@@ -308,10 +312,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     droneVelocityX = state.getVelocityX();
                     droneVelocityY = state.getVelocityY();
                     droneVelocityZ = state.getVelocityZ();
-                    
+                    droneHeading = mCompass.getHeading();
                     updateDroneLocation();
                 }
             });
+
+
         }
     }
 
@@ -521,7 +527,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 } else if (checkedId == R.id.HighSpeed){
                     mSpeed = 10.0f;
                 } else if (checkedId == R.id.MaxSpeed){
-                    mSpeed = 14.0f;
+                    mSpeed = 15.0f;
                 }
             }
 
