@@ -88,6 +88,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     //Edit Texts
     private EditText editText, loopCount;
 
+    //Text Views
+    private TextView ConnectStatusTextView;
+
     //Contexts
     private Context context;
 
@@ -145,6 +148,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         //Other content
         editText = (EditText) findViewById(R.id.editText);
         loopCount = (EditText) findViewById(R.id.loopCount);
+        ConnectStatusTextView = (TextView) findViewById(R.id.ConnectStatusTextView);
 
         locate.setOnClickListener(this);
         add.setOnClickListener(this);
@@ -169,6 +173,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         //Editable Data
         editText = (EditText) findViewById(R.id.editText);
         loopCount = (EditText) findViewById(R.id.loopCount);
+
+        //TextViews
+        ConnectStatusTextView = (TextView) findViewById(R.id.ConnectStatusTextView);
 
         //Context
         context = this;
@@ -299,8 +306,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     droneLocationLng = state.getAircraftLocation().getLongitude();
                     droneLocationAlt = state.getAircraftLocation().getAltitude();
                     droneVelocityX = state.getVelocityX();
-                    droneVelocityY = state.getVelocityX();
-                    droneVelocityZ = state.getVelocityX();
+                    droneVelocityY = state.getVelocityY();
+                    droneVelocityZ = state.getVelocityZ();
+                    
                     updateDroneLocation();
                 }
             });
@@ -453,6 +461,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                             batteryPercent = djiBatteryState.getBatteryEnergyRemainingPercent();
                             batteryVoltage = djiBatteryState.getCurrentVoltage();
                             batteryCurrent = djiBatteryState.getCurrentCurrent();
+                            ConnectStatusTextView.setText("GSDemo - Battery: " + batteryPercent);
                         }
                     }
             );
