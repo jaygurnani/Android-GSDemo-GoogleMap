@@ -527,7 +527,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 } else if (checkedId == R.id.HighSpeed){
                     mSpeed = 10.0f;
                 } else if (checkedId == R.id.MaxSpeed){
-                    mSpeed = 15.0f;
+                    mSpeed = 14.0f;
                 }
             }
 
