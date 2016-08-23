@@ -13,6 +13,8 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -512,25 +514,30 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         LinearLayout wayPointSettings = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_waypointsetting, null);
 
         final TextView wpAltitude_TV = (TextView) wayPointSettings.findViewById(R.id.altitude);
-        RadioGroup speed_RG = (RadioGroup) wayPointSettings.findViewById(R.id.speed);
+        TextView speed_RG = (TextView) wayPointSettings.findViewById(R.id.speed);
         RadioGroup actionAfterFinished_RG = (RadioGroup) wayPointSettings.findViewById(R.id.actionAfterFinished);
         RadioGroup heading_RG = (RadioGroup) wayPointSettings.findViewById(R.id.heading);
 
-        speed_RG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+        speed_RG.addTextChangedListener(new TextWatcher(){
 
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.lowSpeed){
-                    mSpeed = 3.0f;
-                } else if (checkedId == R.id.MidSpeed){
-                    mSpeed = 5.0f;
-                } else if (checkedId == R.id.HighSpeed){
-                    mSpeed = 10.0f;
-                } else if (checkedId == R.id.MaxSpeed){
-                    mSpeed = 14.0f;
+            public void afterTextChanged(Editable s) {
+                try {
+                    mSpeed = Float.parseFloat(s.toString());
+                } catch (NumberFormatException ex){
+                    setResultToToast(ex.getMessage());
                 }
             }
 
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after){
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count){
+
+            }
         });
 
         actionAfterFinished_RG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {

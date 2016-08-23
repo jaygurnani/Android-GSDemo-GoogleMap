@@ -48,33 +48,11 @@
             android:layout_height="wrap_content"
             android:text="Speed:">
         </TextView>
-        <RadioGroup
-            android:layout_width="wrap_content"
+        <EditText
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:id="@+id/speed"
-            android:layout_gravity="center_horizontal">
-            <RadioButton
-                android:id="@+id/lowSpeed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Low"/>
-            <RadioButton
-                android:id="@+id/MidSpeed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mid"/>
-            <RadioButton
-                android:id="@+id/HighSpeed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="High"/>
-            <RadioButton
-                android:id="@+id/MaxSpeed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Max"/>
-        </RadioGroup>
+            android:layout_width="40dp"
+            android:id="@+id/speed">
+        </EditText>
     </LinearLayout>
 
     <LinearLayout
