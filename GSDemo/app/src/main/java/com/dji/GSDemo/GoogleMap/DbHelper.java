@@ -16,7 +16,7 @@ import java.nio.channels.FileChannel;
  */
 public class DbHelper extends SQLiteOpenHelper {
 
-    private static final int DB_VERSION = 8;
+    private static final int DB_VERSION = 10;
 
     private static final String DB_NAME = "SensorData.db";
 
@@ -34,7 +34,14 @@ public class DbHelper extends SQLiteOpenHelper {
     public static final String COL_VEL_Y = "VelocityY";
     public static final String COL_VEL_Z = "VelocityZ";
     public static final String COL_HEADING = "DroneHeading";
-
+    public static final String COL_WIFI1 = "Wifi1";
+    public static final String COL_WIFI2 = "Wifi2";
+    public static final String COL_WIFI3 = "Wifi3";
+    public static final String COL_WIFI4 = "Wifi4";
+    public static final String COL_WIFI5 = "Wifi5";
+    public static final String COL_WIFI6 = "Wifi6";
+    public static final String COL_WIFI7 = "Wifi7";
+    public static final String COL_WIFI8 = "Wifi8";
 
 
     public DbHelper(Context context) {
@@ -51,6 +58,14 @@ public class DbHelper extends SQLiteOpenHelper {
                 + COL_VEL_X + " REAL, "
                 + COL_VEL_Y + " REAL, "
                 + COL_VEL_Z + " REAL, "
+                + COL_WIFI1 + " INT, "
+                + COL_WIFI2 + " INT, "
+                + COL_WIFI3 + " INT, "
+                + COL_WIFI4 + " INT, "
+                + COL_WIFI5 + " INT, "
+                + COL_WIFI6 + " INT, "
+                + COL_WIFI7 + " INT, "
+                + COL_WIFI8 + " INT, "
                 + COL_HEADING + " REAL, "
                 + COL_BATTERY + " INTEGER, "
                 + COL_VOLT + " INTEGER, "

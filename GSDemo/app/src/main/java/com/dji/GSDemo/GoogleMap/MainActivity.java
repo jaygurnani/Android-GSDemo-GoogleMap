@@ -41,6 +41,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import dji.sdk.AirLink.DJILBAirLink;
 import dji.sdk.Battery.DJIBattery;
 import dji.sdk.FlightController.DJICompass;
 import dji.sdk.FlightController.DJIFlightController;
@@ -51,6 +52,7 @@ import dji.sdk.MissionManager.DJIMissionManager;
 import dji.sdk.MissionManager.DJIWaypoint;
 import dji.sdk.MissionManager.DJIWaypointMission;
 import dji.sdk.Products.DJIAircraft;
+import dji.sdk.RemoteController.DJIRemoteController;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
 import dji.sdk.base.DJIError;
@@ -68,9 +70,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private boolean isAdd = false;
 
-    private double droneLocationLat = 181, droneLocationLng = 181;
+    private double droneLocationLat = 181, droneLocationLng = 181, remoteControlLat = 181, remoteControlLong = 181;
     private float droneLocationAlt = 0;
     private float droneVelocityX, droneVelocityY, droneVelocityZ;
+    private int wifi1, wifi2, wifi3, wifi4, wifi5, wifi6, wifi7, wifi8;
     private double droneHeading;
     private final Map<Integer, Marker> mMarkers = new ConcurrentHashMap<Integer, Marker>();
     private Marker droneMarker = null;
@@ -81,6 +84,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private DJIWaypointMission mWaypointMission;
     private DJIMissionManager mMissionManager;
     private DJIFlightController mFlightController;
+    private DJIRemoteController mRemoteController;
     private DJICompass mCompass;
 
     private DJIWaypointMission.DJIWaypointMissionFinishedAction mFinishedAction = DJIWaypointMission.DJIWaypointMissionFinishedAction.NoAction;
@@ -229,7 +233,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     public void run() {
                         try {
                             //Start Logging
-                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, editText.getText().toString());
+                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, editText.getText().toString(), wifi1, wifi2, wifi3, wifi4, wifi5, wifi6, wifi7, wifi8);
                         }
                         catch (Exception e) {
                             setResultToToast(e.getMessage().toString());
@@ -242,8 +246,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     //Log to Database
-    public void LogToDB(int batteryPercentage, int batteryVoltage, int batteryCurrent, double lon, double lat, double alt, float droneVelocityX, float droneVelocityY, float droneVelocityZ, double droneHeading, String method){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public void LogToDB(int batteryPercentage, int batteryVoltage, int batteryCurrent, double lon, double lat, double alt, float droneVelocityX, float droneVelocityY, float droneVelocityZ, double droneHeading, String method, int wifi1, int wifi2, int wifi3, int wifi4, int wifi5, int wifi6, int wifi7, int wifi8){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
         ContentValues cv = new ContentValues(6);
         cv.put(mHelper.COL_BATTERY, batteryPercentage);
@@ -252,6 +256,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         cv.put(mHelper.COL_LONG, lon);
         cv.put(mHelper.COL_LAT, lat);
         cv.put(mHelper.COL_ALT, alt);
+        cv.put(mHelper.COL_WIFI1, wifi1);
+        cv.put(mHelper.COL_WIFI2, wifi2);
+        cv.put(mHelper.COL_WIFI3, wifi3);
+        cv.put(mHelper.COL_WIFI4, wifi4);
+        cv.put(mHelper.COL_WIFI5, wifi5);
+        cv.put(mHelper.COL_WIFI6, wifi6);
+        cv.put(mHelper.COL_WIFI7, wifi7);
+        cv.put(mHelper.COL_WIFI8, wifi8);
         cv.put(mHelper.COL_VEL_X, droneVelocityX);
         cv.put(mHelper.COL_VEL_Y, droneVelocityY);
         cv.put(mHelper.COL_VEL_Z, droneVelocityZ);
@@ -300,6 +312,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if (product != null && product.isConnected()) {
             if (product instanceof DJIAircraft) {
                 mFlightController = ((DJIAircraft) product).getFlightController();
+                mRemoteController = ((DJIAircraft) product).getRemoteController();
+
             }
         }
 
@@ -318,8 +332,17 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     updateDroneLocation();
                 }
             });
+        }
 
-
+        if (mRemoteController != null){
+                mRemoteController.setGpsDataUpdateCallback(new DJIRemoteController.RCGpsDataUpdateCallback() {
+                    @Override
+                    public void onGpsDataUpdate(DJIRemoteController rc, DJIRemoteController.DJIRCGPSData gpsData){
+                        remoteControlLat = gpsData.latitude;
+                        remoteControlLong = gpsData.longitude;
+                    }
+                }
+            );
         }
     }
 
@@ -477,8 +500,28 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             setResultToToast(exception.getMessage().toString());
         }
 
+        try {
+            DJIDemoApplication.getProductInstance().getAirLink().getLBAirLink().setDJILBAirLinkUpdatedAllChannelSignalStrengthsCallback(
+                    new DJILBAirLink.DJILBAirLinkUpdatedAllChannelSignalStrengthsCallback() {
+                        @Override
+                        public void onResult(int[] rssi) {
+                            wifi1 = rssi[0];
+                            wifi2 = rssi[1];
+                            wifi3 = rssi[2];
+                            wifi4 = rssi[3];
+                            wifi5 = rssi[4];
+                            wifi6 = rssi[5];
+                            wifi7 = rssi[6];
+                            wifi8 = rssi[7];
+                        }
+                    }
+            );
+        } catch (Exception exception){
+            setResultToToast(exception.getMessage().toString());
+        }
+
         //Start the sampler - Hard code this to be once a second
-        StartSampler(1000);
+        StartSampler(100);
         setResultToToast("Sampler Started");
     }
 
