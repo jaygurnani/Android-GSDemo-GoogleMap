@@ -530,12 +530,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void cancelTimer(){
         try {
             GlobalTimer.cancel();
+            GlobalTimer.purge();
+            setResultToToast("Timer canceled");
+            GlobalTimer = new Timer();
         } catch (Exception ex) {
             setResultToToast(ex.getMessage().toString());
         }
     }
 
     private void enableVirtual(){
+        GlobalTimer = new Timer();
         DJIBaseProduct product = DJIDemoApplication.getProductInstance();
         if (product != null && product.isConnected()) {
             if (product instanceof DJIAircraft) {
@@ -543,7 +547,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 mFlightController.setHorizontalCoordinateSystem(DJIFlightControllerDataType.DJIVirtualStickFlightCoordinateSystem.Body);
                 mFlightController.setRollPitchControlMode(DJIFlightControllerDataType.DJIVirtualStickRollPitchControlMode.Velocity);
                 mFlightController.setVerticalControlMode(DJIFlightControllerDataType.DJIVirtualStickVerticalControlMode.Position);
-                mFlightController.setYawControlMode(DJIFlightControllerDataType.DJIVirtualStickYawControlMode.Angle);
+                mFlightController.setYawControlMode(DJIFlightControllerDataType.DJIVirtualStickYawControlMode.AngularVelocity);
                 mFlightController.enableVirtualStickControlMode(new DJIBaseComponent.DJICompletionCallback() {
                     @Override
                     public void onResult(DJIError djiError) {
@@ -592,7 +596,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
                 try {
                     changeVirtualFlight(mFlightController, flightControlData);
-                    setResultToToast("Turn: success");
+                    setResultToToast("Straight: success");
 
                 } catch (Exception ex) {
                     setResultToToast(ex.getMessage().toString());
@@ -607,7 +611,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             if (product instanceof DJIAircraft) {
                 mFlightController = ((DJIAircraft) product).getFlightController();
                 final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData =
-                        new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(Float.parseFloat(speed.getText().toString()),
+                        new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(
+                                Float.parseFloat(speed.getText().toString()),
                                 0,
                                 Float.parseFloat(degreeToTurn.getText().toString()),
                                 Float.parseFloat(height.getText().toString())
@@ -615,7 +620,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
                 try {
                     changeVirtualFlight(mFlightController, flightControlData);
-                    setResultToToast("Straight: success");
+                    setResultToToast("Turn: success");
 
                 } catch (Exception ex) {
                     setResultToToast(ex.getMessage().toString());
@@ -625,7 +630,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     private void changeVirtualFlight(final DJIFlightController mFlightController, final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData){
-        GlobalTimer = new Timer();
         GlobalTimer.schedule(new TimerTask() {
             @Override
             public void run() {
