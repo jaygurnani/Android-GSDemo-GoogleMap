@@ -66,7 +66,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private Button locate, add, clear;
     private Button config, prepare, start, stop;
     private Button startTimer, stopTimer, exportData;
+    private Button enableVirtual, disableVirtual, turnDegrees, goStraight, cancelTimer;
     public Timer timerFunc;
+    public Timer GlobalTimer;
 
     private boolean isAdd = false;
 
@@ -95,7 +97,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private SQLiteDatabase mDb;
 
     //Edit Texts
-    private EditText editText, loopCount;
+    private EditText editText, loopCount, speed, degreeToTurn, height;
 
     //Text Views
     private TextView ConnectStatusTextView;
@@ -153,10 +155,18 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         startTimer = (Button) findViewById(R.id.startTimer);
         stopTimer = (Button) findViewById(R.id.stopTimer);
         exportData = (Button) findViewById(R.id.exportData);
+        enableVirtual = (Button) findViewById(R.id.enableVirtual);
+        turnDegrees = (Button) findViewById(R.id.turnDegrees);
+        goStraight  = (Button) findViewById(R.id.goStraight);
+        disableVirtual = (Button) findViewById(R.id.disableVirtual);
+        cancelTimer = (Button) findViewById(R.id.cancelTimer);
 
         //Other content
         editText = (EditText) findViewById(R.id.editText);
         loopCount = (EditText) findViewById(R.id.loopCount);
+        degreeToTurn = (EditText) findViewById(R.id.degreeToTurn);
+        speed = (EditText) findViewById(R.id.speed);
+        height = (EditText) findViewById(R.id.height);
         ConnectStatusTextView = (TextView) findViewById(R.id.ConnectStatusTextView);
 
         locate.setOnClickListener(this);
@@ -169,12 +179,18 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         startTimer.setOnClickListener(this);
         stopTimer.setOnClickListener(this);
         exportData.setOnClickListener(this);
+        enableVirtual.setOnClickListener(this);
+        turnDegrees.setOnClickListener(this);
+        disableVirtual.setOnClickListener(this);
+        goStraight.setOnClickListener(this);
+        cancelTimer.setOnClickListener(this);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        GlobalTimer = new Timer();
         //DBHelper
         mHelper = new DbHelper(this);
         mDb = mHelper.getWritableDatabase();
@@ -182,6 +198,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         //Editable Data
         editText = (EditText) findViewById(R.id.editText);
         loopCount = (EditText) findViewById(R.id.loopCount);
+        speed = (EditText) findViewById(R.id.speed);
+        degreeToTurn = (EditText) findViewById(R.id.degreeToTurn);
+        height = (EditText) findViewById(R.id.height);
 
         //TextViews
         ConnectStatusTextView = (TextView) findViewById(R.id.ConnectStatusTextView);
@@ -233,7 +252,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     public void run() {
                         try {
                             //Start Logging
-                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, editText.getText().toString(), wifi1, wifi2, wifi3, wifi4, wifi5, wifi6, wifi7, wifi8);
+                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, remoteControlLong, remoteControlLat, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, editText.getText().toString(), wifi1, wifi2, wifi3, wifi4, wifi5, wifi6, wifi7, wifi8);
                         }
                         catch (Exception e) {
                             setResultToToast(e.getMessage().toString());
@@ -246,7 +265,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     //Log to Database
-    public void LogToDB(int batteryPercentage, int batteryVoltage, int batteryCurrent, double lon, double lat, double alt, float droneVelocityX, float droneVelocityY, float droneVelocityZ, double droneHeading, String method, int wifi1, int wifi2, int wifi3, int wifi4, int wifi5, int wifi6, int wifi7, int wifi8){
+    public void LogToDB(int batteryPercentage, int batteryVoltage, int batteryCurrent, double lon, double lat, double alt, double homeLong, double homeLat, float droneVelocityX, float droneVelocityY, float droneVelocityZ, double droneHeading, String method, int wifi1, int wifi2, int wifi3, int wifi4, int wifi5, int wifi6, int wifi7, int wifi8){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
         ContentValues cv = new ContentValues(6);
@@ -256,6 +275,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         cv.put(mHelper.COL_LONG, lon);
         cv.put(mHelper.COL_LAT, lat);
         cv.put(mHelper.COL_ALT, alt);
+        //cv.put(mHelper.COL_HOME_LAT, homeLat);
+        //cv.put(mHelper.COL_HOME_LONG, homeLong);
         cv.put(mHelper.COL_WIFI1, wifi1);
         cv.put(mHelper.COL_WIFI2, wifi2);
         cv.put(mHelper.COL_WIFI3, wifi3);
@@ -312,8 +333,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if (product != null && product.isConnected()) {
             if (product instanceof DJIAircraft) {
                 mFlightController = ((DJIAircraft) product).getFlightController();
-                mRemoteController = ((DJIAircraft) product).getRemoteController();
-
+                //mRemoteController = ((DJIAircraft) product).getRemoteController();
             }
         }
 
@@ -334,16 +354,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             });
         }
 
-        if (mRemoteController != null){
-                mRemoteController.setGpsDataUpdateCallback(new DJIRemoteController.RCGpsDataUpdateCallback() {
-                    @Override
-                    public void onGpsDataUpdate(DJIRemoteController rc, DJIRemoteController.DJIRCGPSData gpsData){
-                        remoteControlLat = gpsData.latitude;
-                        remoteControlLong = gpsData.longitude;
-                    }
-                }
-            );
-        }
+//        if (mRemoteController != null){
+//                mRemoteController.setGpsDataUpdateCallback(new DJIRemoteController.RCGpsDataUpdateCallback() {
+//                    @Override
+//                    public void onGpsDataUpdate(DJIRemoteController rc, DJIRemoteController.DJIRCGPSData gpsData){
+//                        remoteControlLat = gpsData.latitude;
+//                        remoteControlLong = gpsData.longitude;
+//                    }
+//                }
+//            );
+//        }
     }
 
     /**
@@ -477,9 +497,148 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 break;
             }
 
+            case R.id.enableVirtual:{
+                enableVirtual();
+                break;
+            }
+
+            case R.id.turnDegrees:{
+                turnDegrees();
+                break;
+            }
+
+            case R.id.goStraight:{
+                goStraight();
+                break;
+            }
+
+            case R.id.disableVirtual:{
+                disableVirtual();
+                break;
+            }
+
+            case R.id.cancelTimer:{
+                cancelTimer();
+                break;
+            }
+
             default:
                 break;
         }
+    }
+
+    private void cancelTimer(){
+        try {
+            GlobalTimer.cancel();
+        } catch (Exception ex) {
+            setResultToToast(ex.getMessage().toString());
+        }
+    }
+
+    private void enableVirtual(){
+        DJIBaseProduct product = DJIDemoApplication.getProductInstance();
+        if (product != null && product.isConnected()) {
+            if (product instanceof DJIAircraft) {
+                mFlightController = ((DJIAircraft) product).getFlightController();
+                mFlightController.setHorizontalCoordinateSystem(DJIFlightControllerDataType.DJIVirtualStickFlightCoordinateSystem.Body);
+                mFlightController.setRollPitchControlMode(DJIFlightControllerDataType.DJIVirtualStickRollPitchControlMode.Velocity);
+                mFlightController.setVerticalControlMode(DJIFlightControllerDataType.DJIVirtualStickVerticalControlMode.Position);
+                mFlightController.setYawControlMode(DJIFlightControllerDataType.DJIVirtualStickYawControlMode.Angle);
+                mFlightController.enableVirtualStickControlMode(new DJIBaseComponent.DJICompletionCallback() {
+                    @Override
+                    public void onResult(DJIError djiError) {
+                        if (djiError == null) {
+                            setResultToToast("Enable VirtualStickControlMode successful");
+                        } else {
+                            setResultToToast(djiError.getDescription());
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private void disableVirtual(){
+        DJIBaseProduct product = DJIDemoApplication.getProductInstance();
+        if (product != null && product.isConnected()) {
+            if (product instanceof DJIAircraft) {
+                mFlightController = ((DJIAircraft) product).getFlightController();
+                mFlightController.disableVirtualStickControlMode(new DJIBaseComponent.DJICompletionCallback() {
+                    @Override
+                    public void onResult(DJIError djiError) {
+                        if (djiError == null) {
+                            setResultToToast("Disable VirtualStickControlMode successful");
+                        } else {
+                            setResultToToast(djiError.getDescription());
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private void goStraight() {
+        DJIBaseProduct product = DJIDemoApplication.getProductInstance();
+        if (product != null && product.isConnected()) {
+            if (product instanceof DJIAircraft) {
+                mFlightController = ((DJIAircraft) product).getFlightController();
+                final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData =
+                        new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(
+                                Float.parseFloat(speed.getText().toString()),
+                                0,
+                                0,
+                                Float.parseFloat(height.getText().toString())
+                        );
+
+                try {
+                    changeVirtualFlight(mFlightController, flightControlData);
+                    setResultToToast("Turn: success");
+
+                } catch (Exception ex) {
+                    setResultToToast(ex.getMessage().toString());
+                }
+            }
+        }
+    }
+
+    private void turnDegrees(){
+        DJIBaseProduct product = DJIDemoApplication.getProductInstance();
+        if (product != null && product.isConnected()) {
+            if (product instanceof DJIAircraft) {
+                mFlightController = ((DJIAircraft) product).getFlightController();
+                final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData =
+                        new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(Float.parseFloat(speed.getText().toString()),
+                                0,
+                                Float.parseFloat(degreeToTurn.getText().toString()),
+                                Float.parseFloat(height.getText().toString())
+                        );
+
+                try {
+                    changeVirtualFlight(mFlightController, flightControlData);
+                    setResultToToast("Straight: success");
+
+                } catch (Exception ex) {
+                    setResultToToast(ex.getMessage().toString());
+                }
+            }
+        }
+    }
+
+    private void changeVirtualFlight(final DJIFlightController mFlightController, final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData){
+        GlobalTimer = new Timer();
+        GlobalTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                mFlightController.sendVirtualStickFlightControlData(flightControlData, new DJIBaseComponent.DJICompletionCallback() {
+                    @Override
+                    public void onResult(DJIError error) {
+                        if (error != null) {
+                            setResultToToast(error.getDescription());
+                        }
+                    }
+                });
+            }
+        }, 0, 200);
     }
 
     private void startTimerToast(){

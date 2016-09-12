@@ -16,7 +16,7 @@ import java.nio.channels.FileChannel;
  */
 public class DbHelper extends SQLiteOpenHelper {
 
-    private static final int DB_VERSION = 10;
+    private static final int DB_VERSION = 12;
 
     private static final String DB_NAME = "SensorData.db";
 
@@ -24,6 +24,8 @@ public class DbHelper extends SQLiteOpenHelper {
 
     public static final String COL_LONG = "Longitude";
     public static final String COL_LAT = "Latitude";
+    public static final String COL_HOME_LONG = "HomeLongitude";
+    public static final String COL_HOME_LAT = "HomeLatitude";
     public static final String COL_ALT = "Altitude";
     public static final String COL_BATTERY = "Battery";
     public static final String COL_VOLT = "Voltage";
@@ -55,6 +57,8 @@ public class DbHelper extends SQLiteOpenHelper {
                 + COL_LONG + " INTEGER, "
                 + COL_LAT + " INTEGER, "
                 + COL_ALT + " INTEGER, "
+                //+ COL_HOME_LONG + "INTEGER, "
+                //+ COL_HOME_LAT + "INTEGER, "
                 + COL_VEL_X + " REAL, "
                 + COL_VEL_Y + " REAL, "
                 + COL_VEL_Z + " REAL, "
