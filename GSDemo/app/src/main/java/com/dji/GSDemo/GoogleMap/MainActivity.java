@@ -97,7 +97,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private SQLiteDatabase mDb;
 
     //Edit Texts
-    private EditText editText, loopCount, speed, degreeToTurn, height, roll;
+    private EditText editText, loopCount, speed, degreeToTurn, height, roll, speed2, roll2;
 
     //Text Views
     private TextView ConnectStatusTextView;
@@ -169,6 +169,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         speed = (EditText) findViewById(R.id.speed);
         height = (EditText) findViewById(R.id.height);
         roll  = (EditText) findViewById(R.id.roll);
+        speed2 = (EditText) findViewById(R.id.speed2);
+        roll2 = (EditText) findViewById(R.id.roll2);
         ConnectStatusTextView = (TextView) findViewById(R.id.ConnectStatusTextView);
 
         locate.setOnClickListener(this);
@@ -205,6 +207,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         degreeToTurn = (EditText) findViewById(R.id.degreeToTurn);
         height = (EditText) findViewById(R.id.height);
         roll = (EditText) findViewById(R.id.roll);
+        speed = (EditText) findViewById(R.id.speed);
+        speed2 = (EditText) findViewById(R.id.speed2);
 
         //TextViews
         ConnectStatusTextView = (TextView) findViewById(R.id.ConnectStatusTextView);
@@ -598,7 +602,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData =
                         new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(
                                 Float.parseFloat(speed.getText().toString()),
-                                0,
+                                Float.parseFloat(roll.getText().toString()),
                                 0,
                                 Float.parseFloat(height.getText().toString())
                         );
@@ -621,15 +625,15 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 mFlightController = ((DJIAircraft) product).getFlightController();
                 final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData =
                         new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(
-                                Float.parseFloat(speed.getText().toString()),
-                                Float.parseFloat(roll.getText().toString()),
+                                Float.parseFloat(speed2.getText().toString()),
+                                Float.parseFloat(roll2.getText().toString()),
                                 0,
                                 Float.parseFloat(height.getText().toString())
                         );
 
                 try {
                     changeVirtualFlight(mFlightController, flightControlData);
-                    setResultToToast("Turn: success");
+                    setResultToToast("Turn Pitch: success");
 
                 } catch (Exception ex) {
                     setResultToToast(ex.getMessage().toString());
@@ -646,14 +650,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData =
                         new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(
                                 Float.parseFloat(speed.getText().toString()),
-                                0,
+                                Float.parseFloat(roll.getText().toString()),
                                 Float.parseFloat(degreeToTurn.getText().toString()),
                                 Float.parseFloat(height.getText().toString())
                         );
 
                 try {
                     changeVirtualFlight(mFlightController, flightControlData);
-                    setResultToToast("Turn: success");
+                    setResultToToast("Turn Degrees: success");
 
                 } catch (Exception ex) {
                     setResultToToast(ex.getMessage().toString());

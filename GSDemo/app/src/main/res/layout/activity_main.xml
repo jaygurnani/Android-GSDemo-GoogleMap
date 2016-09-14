@@ -157,24 +157,24 @@
         android:orientation="horizontal">
 
         <EditText
-            android:id="@+id/degreeToTurn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Yaw"
-            android:layout_weight="0.9"/>
-
-        <EditText
             android:id="@+id/speed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pitch"
+            android:text="Pitch1"
             android:layout_weight="0.9"/>
 
         <EditText
             android:id="@+id/roll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Roll"
+            android:text="Roll1"
+            android:layout_weight="0.9"/>
+
+        <EditText
+            android:id="@+id/degreeToTurn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Yaw"
             android:layout_weight="0.9"/>
 
         <EditText
@@ -190,6 +190,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/speed2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pitch2"
+            android:layout_weight="0.9"/>
+
+        <EditText
+            android:id="@+id/roll2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Roll2"
+            android:layout_weight="0.9"/>
 
         <Button
             android:id="@+id/enableVirtual"
