@@ -66,7 +66,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private Button locate, add, clear;
     private Button config, prepare, start, stop;
     private Button startTimer, stopTimer, exportData;
-    private Button enableVirtual, disableVirtual, turnDegrees, goStraight, cancelTimer;
+    private Button enableVirtual, disableVirtual, turnDegrees, turnPitch, goStraight, cancelTimer;
     public Timer timerFunc;
     public Timer GlobalTimer;
 
@@ -97,7 +97,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private SQLiteDatabase mDb;
 
     //Edit Texts
-    private EditText editText, loopCount, speed, degreeToTurn, height;
+    private EditText editText, loopCount, speed, degreeToTurn, height, roll;
 
     //Text Views
     private TextView ConnectStatusTextView;
@@ -160,6 +160,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         goStraight  = (Button) findViewById(R.id.goStraight);
         disableVirtual = (Button) findViewById(R.id.disableVirtual);
         cancelTimer = (Button) findViewById(R.id.cancelTimer);
+        turnPitch = (Button) findViewById(R.id.turnPitch);
 
         //Other content
         editText = (EditText) findViewById(R.id.editText);
@@ -167,6 +168,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         degreeToTurn = (EditText) findViewById(R.id.degreeToTurn);
         speed = (EditText) findViewById(R.id.speed);
         height = (EditText) findViewById(R.id.height);
+        roll  = (EditText) findViewById(R.id.roll);
         ConnectStatusTextView = (TextView) findViewById(R.id.ConnectStatusTextView);
 
         locate.setOnClickListener(this);
@@ -184,6 +186,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         disableVirtual.setOnClickListener(this);
         goStraight.setOnClickListener(this);
         cancelTimer.setOnClickListener(this);
+        turnPitch.setOnClickListener(this);
     }
 
     @Override
@@ -201,6 +204,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         speed = (EditText) findViewById(R.id.speed);
         degreeToTurn = (EditText) findViewById(R.id.degreeToTurn);
         height = (EditText) findViewById(R.id.height);
+        roll = (EditText) findViewById(R.id.roll);
 
         //TextViews
         ConnectStatusTextView = (TextView) findViewById(R.id.ConnectStatusTextView);
@@ -522,6 +526,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 break;
             }
 
+            case R.id.turnPitch:{
+                turnPitch();
+                break;
+            }
+
             default:
                 break;
         }
@@ -597,6 +606,30 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 try {
                     changeVirtualFlight(mFlightController, flightControlData);
                     setResultToToast("Straight: success");
+
+                } catch (Exception ex) {
+                    setResultToToast(ex.getMessage().toString());
+                }
+            }
+        }
+    }
+
+    private void turnPitch(){
+        DJIBaseProduct product = DJIDemoApplication.getProductInstance();
+        if (product != null && product.isConnected()) {
+            if (product instanceof DJIAircraft) {
+                mFlightController = ((DJIAircraft) product).getFlightController();
+                final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData =
+                        new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(
+                                Float.parseFloat(speed.getText().toString()),
+                                Float.parseFloat(roll.getText().toString()),
+                                0,
+                                Float.parseFloat(height.getText().toString())
+                        );
+
+                try {
+                    changeVirtualFlight(mFlightController, flightControlData);
+                    setResultToToast("Turn: success");
 
                 } catch (Exception ex) {
                     setResultToToast(ex.getMessage().toString());

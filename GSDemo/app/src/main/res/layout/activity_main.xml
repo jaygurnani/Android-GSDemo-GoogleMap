@@ -54,7 +54,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
         <Button
             android:id="@+id/config"
             android:layout_width="match_parent"
@@ -118,12 +119,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <Button
-            android:id="@+id/enableVirtual"
+            android:id="@+id/turnPitch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Enable Virtual"
+            android:text="Turn Pitch"
             android:layout_weight="0.9"/>
+
 
         <Button
             android:id="@+id/turnDegrees"
@@ -136,15 +139,16 @@
             android:id="@+id/goStraight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Go Straight"
+            android:text="Straight"
             android:layout_weight="0.9"/>
 
         <Button
-            android:id="@+id/disableVirtual"
+            android:id="@+id/cancelTimer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Disable Virtual"
+            android:text="Cancel Timer"
             android:layout_weight="0.9"/>
+
     </LinearLayout>
 
     <LinearLayout
@@ -156,14 +160,21 @@
             android:id="@+id/degreeToTurn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Degree"
+            android:text="Yaw"
             android:layout_weight="0.9"/>
 
         <EditText
             android:id="@+id/speed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Speed"
+            android:text="Pitch"
+            android:layout_weight="0.9"/>
+
+        <EditText
+            android:id="@+id/roll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Roll"
             android:layout_weight="0.9"/>
 
         <EditText
@@ -173,11 +184,25 @@
             android:text="Height"
             android:layout_weight="0.9"/>
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
         <Button
-            android:id="@+id/cancelTimer"
+            android:id="@+id/enableVirtual"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Cancel Timer"
+            android:text="Enable Virtual"
+            android:layout_weight="0.9"/>
+
+        <Button
+            android:id="@+id/disableVirtual"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Disable Virtual"
             android:layout_weight="0.9"/>
 
     </LinearLayout>
