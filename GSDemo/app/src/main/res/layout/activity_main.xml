@@ -143,6 +143,13 @@
             android:layout_weight="0.9"/>
 
         <Button
+            android:id="@+id/runProgram"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Program"
+            android:layout_weight="0.9"/>
+
+        <Button
             android:id="@+id/cancelTimer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

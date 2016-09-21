@@ -35,8 +35,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,9 +69,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private Button locate, add, clear;
     private Button config, prepare, start, stop;
     private Button startTimer, stopTimer, exportData;
-    private Button enableVirtual, disableVirtual, turnDegrees, turnPitch, goStraight, cancelTimer;
+    private Button enableVirtual, disableVirtual, turnDegrees, turnPitch, goStraight, cancelTimer, runProgram;
+    public LinkedList<FlightInstructionsWithTime> programInstructions;
     public Timer timerFunc;
     public Timer GlobalTimer;
+    public String globalString;
 
     private boolean isAdd = false;
 
@@ -161,6 +166,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         disableVirtual = (Button) findViewById(R.id.disableVirtual);
         cancelTimer = (Button) findViewById(R.id.cancelTimer);
         turnPitch = (Button) findViewById(R.id.turnPitch);
+        runProgram = (Button) findViewById(R.id.runProgram);
 
         //Other content
         editText = (EditText) findViewById(R.id.editText);
@@ -189,6 +195,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         goStraight.setOnClickListener(this);
         cancelTimer.setOnClickListener(this);
         turnPitch.setOnClickListener(this);
+        runProgram.setOnClickListener(this);
     }
 
     @Override
@@ -260,7 +267,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     public void run() {
                         try {
                             //Start Logging
-                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, remoteControlLong, remoteControlLat, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, editText.getText().toString(), wifi1, wifi2, wifi3, wifi4, wifi5, wifi6, wifi7, wifi8);
+                            //LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, remoteControlLong, remoteControlLat, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, editText.getText().toString(), wifi1, wifi2, wifi3, wifi4, wifi5, wifi6, wifi7, wifi8);
+                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, remoteControlLong, remoteControlLat, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, globalString, wifi1, wifi2, wifi3, wifi4, wifi5, wifi6, wifi7, wifi8);
                         }
                         catch (Exception e) {
                             setResultToToast(e.getMessage().toString());
@@ -535,9 +543,65 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 break;
             }
 
+            case R.id.runProgram:{
+                runProgram();
+                break;
+            }
+
             default:
                 break;
         }
+    }
+
+    private void runProgram(){
+        programInstructions = new LinkedList<FlightInstructionsWithTime>();
+
+        FlightInstructionsWithTime first = new FlightInstructionsWithTime(generateFlightInstructions(10, 0, 0, 10), 5);
+        programInstructions.add(first);
+
+        FlightInstructionsWithTime second = new FlightInstructionsWithTime(generateFlightInstructions(1.74, 9.85, 0, 10), 2);
+        programInstructions.add(second);
+
+        FlightInstructionsWithTime third = new FlightInstructionsWithTime(generateFlightInstructions(0.87, -9.96, 0, 10), 2);
+        programInstructions.add(third);
+
+        FlightInstructionsWithTime fourth = new FlightInstructionsWithTime(generateFlightInstructions(0, 10, 0, 10), 2);
+        programInstructions.add(fourth);
+
+        FlightInstructionsWithTime fifth = new FlightInstructionsWithTime(generateFlightInstructions(-0.87, -9.96, 0, 10), 2);
+        programInstructions.add(fifth);
+
+        FlightInstructionsWithTime sixth = new FlightInstructionsWithTime(generateFlightInstructions(-1.74, 9.85, 0, 10), 2);
+        programInstructions.add(sixth);
+
+        runProgramRecursive();
+    }
+
+    private void runProgramRecursive(){
+        final FlightInstructionsWithTime currentInstructions = programInstructions.pop();
+        GlobalTimer.schedule(new TimerTask() {
+            long t0 = System.currentTimeMillis();
+            @Override
+            public void run() {
+                if (System.currentTimeMillis() - t0 > currentInstructions.getTime() * 1000) {
+                    cancel();
+                    if (programInstructions.size() != 0){
+                        runProgramRecursive();
+                    }
+                } else {
+                    mFlightController.sendVirtualStickFlightControlData(currentInstructions.getInstructions(), null);
+                    globalString = Float.toString(currentInstructions.getInstructions().getPitch());
+                }
+            }
+        }, 0, 200);
+    }
+
+    private DJIFlightControllerDataType.DJIVirtualStickFlightControlData generateFlightInstructions(double speed, double roll, double yaw, double altitude){
+        return new DJIFlightControllerDataType.DJIVirtualStickFlightControlData((float)speed, (float) roll, (float)yaw, (float)altitude);
+    }
+
+    private DJIFlightControllerDataType.DJIVirtualStickFlightControlData generateFlightInstructions(float speed, float roll, float yaw, float altitude){
+        return new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(speed, roll, yaw, altitude);
     }
 
     private void cancelTimer(){
@@ -561,6 +625,25 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 mFlightController.setRollPitchControlMode(DJIFlightControllerDataType.DJIVirtualStickRollPitchControlMode.Velocity);
                 mFlightController.setVerticalControlMode(DJIFlightControllerDataType.DJIVirtualStickVerticalControlMode.Position);
                 mFlightController.setYawControlMode(DJIFlightControllerDataType.DJIVirtualStickYawControlMode.AngularVelocity);
+
+                StringBuffer sb = new StringBuffer();
+                sb.append("Velocity: ");
+                sb.append(DJIFlightControllerDataType.DJIVirtualStickRollPitchControlMinVelocity);
+                sb.append(" - ");
+                sb.append(DJIFlightControllerDataType.DJIVirtualStickRollPitchControlMaxVelocity);
+
+                sb.append("\nVerticle: ");
+                sb.append(DJIFlightControllerDataType.DJIVirtualStickVerticalControlMinPosition);
+                sb.append(" - ");
+                sb.append(DJIFlightControllerDataType.DJIVirtualStickVerticalControlMaxPosition);
+
+                sb.append("\nYaw: ");
+                sb.append(DJIFlightControllerDataType.DJIVirtualStickYawControlMinAngularVelocity);
+                sb.append(" - ");
+                sb.append(DJIFlightControllerDataType.DJIVirtualStickYawControlMaxAngularVelocity);
+
+                setResultToToast(sb.toString());
+
                 mFlightController.enableVirtualStickControlMode(new DJIBaseComponent.DJICompletionCallback() {
                     @Override
                     public void onResult(DJIError djiError) {
@@ -600,13 +683,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             if (product instanceof DJIAircraft) {
                 mFlightController = ((DJIAircraft) product).getFlightController();
                 final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData =
-                        new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(
-                                Float.parseFloat(speed.getText().toString()),
-                                Float.parseFloat(roll.getText().toString()),
-                                0,
-                                Float.parseFloat(height.getText().toString())
-                        );
-
+                        generateFlightInstructions(Float.parseFloat(speed.getText().toString()), Float.parseFloat(roll.getText().toString()), 0,Float.parseFloat(height.getText().toString()));
                 try {
                     changeVirtualFlight(mFlightController, flightControlData);
                     setResultToToast("Straight: success");
@@ -624,13 +701,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             if (product instanceof DJIAircraft) {
                 mFlightController = ((DJIAircraft) product).getFlightController();
                 final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData =
-                        new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(
-                                Float.parseFloat(speed2.getText().toString()),
-                                Float.parseFloat(roll2.getText().toString()),
-                                0,
-                                Float.parseFloat(height.getText().toString())
-                        );
-
+                        generateFlightInstructions(Float.parseFloat(speed2.getText().toString()),Float.parseFloat(roll2.getText().toString()), 0,Float.parseFloat(height.getText().toString()));
                 try {
                     changeVirtualFlight(mFlightController, flightControlData);
                     setResultToToast("Turn Pitch: success");
@@ -648,12 +719,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             if (product instanceof DJIAircraft) {
                 mFlightController = ((DJIAircraft) product).getFlightController();
                 final DJIFlightControllerDataType.DJIVirtualStickFlightControlData flightControlData =
-                        new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(
-                                Float.parseFloat(speed.getText().toString()),
-                                Float.parseFloat(roll.getText().toString()),
-                                Float.parseFloat(degreeToTurn.getText().toString()),
-                                Float.parseFloat(height.getText().toString())
-                        );
+                        generateFlightInstructions(Float.parseFloat(speed.getText().toString()),Float.parseFloat(roll.getText().toString()),Float.parseFloat(degreeToTurn.getText().toString()),Float.parseFloat(height.getText().toString()));
 
                 try {
                     changeVirtualFlight(mFlightController, flightControlData);
