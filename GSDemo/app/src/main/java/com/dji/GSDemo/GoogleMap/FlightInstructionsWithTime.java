@@ -7,6 +7,11 @@ public class FlightInstructionsWithTime {
 
     public FlightInstructionsWithTime(DJIFlightControllerDataType.DJIVirtualStickFlightControlData instructions, int time) {
         this.instructions = instructions;
+        this.time = (double) time;
+    }
+
+    public FlightInstructionsWithTime(DJIFlightControllerDataType.DJIVirtualStickFlightControlData instructions, double time) {
+        this.instructions = instructions;
         this.time = time;
     }
 
@@ -18,15 +23,15 @@ public class FlightInstructionsWithTime {
         this.instructions = instructions;
     }
 
-    public int getTime() {
+    public double getTime() {
         return time;
     }
 
-    public void setTime(int time) {
+    public void setTime(double time) {
         this.time = time;
     }
 
     //Member variables
     private DJIFlightControllerDataType.DJIVirtualStickFlightControlData instructions;
-    private int time;
+    private double time;
 }

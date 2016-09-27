@@ -556,23 +556,32 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void runProgram(){
         programInstructions = new LinkedList<FlightInstructionsWithTime>();
 
-        FlightInstructionsWithTime first = new FlightInstructionsWithTime(generateFlightInstructions(10, 0, 0, 10), 5);
+        FlightInstructionsWithTime first = new FlightInstructionsWithTime(generateFlightInstructions(0, 10, 0, 10), 5);
         programInstructions.add(first);
 
-        FlightInstructionsWithTime second = new FlightInstructionsWithTime(generateFlightInstructions(1.74, 9.85, 0, 10), 2);
+        FlightInstructionsWithTime second = new FlightInstructionsWithTime(generateFlightInstructions(1.736481777, 9.84807753,  0, 10), .750);
         programInstructions.add(second);
 
-        FlightInstructionsWithTime third = new FlightInstructionsWithTime(generateFlightInstructions(0.87, -9.96, 0, 10), 2);
+        FlightInstructionsWithTime third = new FlightInstructionsWithTime(generateFlightInstructions(-1.736481777, 9.84807753, 0, 10), .750);
         programInstructions.add(third);
 
-        FlightInstructionsWithTime fourth = new FlightInstructionsWithTime(generateFlightInstructions(0, 10, 0, 10), 2);
+        FlightInstructionsWithTime fourth = new FlightInstructionsWithTime(generateFlightInstructions( 1.736481777, 9.84807753, 0, 10), .500);
         programInstructions.add(fourth);
 
-        FlightInstructionsWithTime fifth = new FlightInstructionsWithTime(generateFlightInstructions(-0.87, -9.96, 0, 10), 2);
+        FlightInstructionsWithTime fifth = new FlightInstructionsWithTime(generateFlightInstructions(-1.736481777, 9.84807753, 0, 10), .500);
         programInstructions.add(fifth);
 
-        FlightInstructionsWithTime sixth = new FlightInstructionsWithTime(generateFlightInstructions(-1.74, 9.85, 0, 10), 2);
+        FlightInstructionsWithTime sixth = new FlightInstructionsWithTime(generateFlightInstructions( 1.736481777, 9.84807753, 0, 10), .250);
         programInstructions.add(sixth);
+
+        FlightInstructionsWithTime seventh = new FlightInstructionsWithTime(generateFlightInstructions(-1.736481777, 9.84807753, 0, 10), .250);
+        programInstructions.add(seventh);
+
+        FlightInstructionsWithTime eigth = new FlightInstructionsWithTime(generateFlightInstructions(1.736481777, 9.84807753, 0, 10), .100);
+        programInstructions.add(eigth);
+
+        FlightInstructionsWithTime ninth = new FlightInstructionsWithTime(generateFlightInstructions(-1.736481777, 9.84807753, 0, 10), .100);
+        programInstructions.add(ninth);
 
         runProgramRecursive();
     }
@@ -590,10 +599,19 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     }
                 } else {
                     mFlightController.sendVirtualStickFlightControlData(currentInstructions.getInstructions(), null);
-                    globalString = Float.toString(currentInstructions.getInstructions().getPitch());
+                    globalString = Double.toString(currentInstructions.getTime());
+                    //globalString = checkIfFloatContainsNegative(currentInstructions.getInstructions().getPitch()) + " " + Double.toString(currentInstructions.getTime());
                 }
             }
-        }, 0, 200);
+        }, 0, 100);
+    }
+
+    private String checkIfFloatContainsNegative(Float f){
+        if (f < 0.00){
+            return "-";
+        } else {
+            return "+";
+        }
     }
 
     private DJIFlightControllerDataType.DJIVirtualStickFlightControlData generateFlightInstructions(double speed, double roll, double yaw, double altitude){
