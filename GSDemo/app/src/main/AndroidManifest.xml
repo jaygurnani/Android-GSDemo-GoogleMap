@@ -44,10 +44,10 @@
 
         <meta-data
             android:name="com.dji.sdk.API_KEY"
-            android:value="feabe785cf9d052d89cda3e3" />
+            android:value="" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCRh_rmFyS-YOPm0IZ12tfO9ko3rAos3JE" />
+            android:value="" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
