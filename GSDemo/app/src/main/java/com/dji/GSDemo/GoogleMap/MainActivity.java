@@ -267,8 +267,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     public void run() {
                         try {
                             //Start Logging
-                            //LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, remoteControlLong, remoteControlLat, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, editText.getText().toString(), wifi1, wifi2, wifi3, wifi4, wifi5, wifi6, wifi7, wifi8);
-                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, remoteControlLong, remoteControlLat, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, globalString, wifi1, wifi2, wifi3, wifi4, wifi5, wifi6, wifi7, wifi8);
+                            LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, remoteControlLong, remoteControlLat, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, editText.getText().toString(), wifi1, wifi2, wifi3, wifi4, wifi5, wifi6, wifi7, wifi8);
+                            //LogToDB(batteryPercent, batteryVoltage, batteryCurrent, droneLocationLng, droneLocationLat, droneLocationAlt, remoteControlLong, remoteControlLat, droneVelocityX, droneVelocityY, droneVelocityZ, droneHeading, globalString, wifi1, wifi2, wifi3, wifi4, wifi5, wifi6, wifi7, wifi8);
                         }
                         catch (Exception e) {
                             setResultToToast(e.getMessage().toString());
@@ -370,16 +370,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             });
         }
 
-//        if (mRemoteController != null){
-//                mRemoteController.setGpsDataUpdateCallback(new DJIRemoteController.RCGpsDataUpdateCallback() {
-//                    @Override
-//                    public void onGpsDataUpdate(DJIRemoteController rc, DJIRemoteController.DJIRCGPSData gpsData){
-//                        remoteControlLat = gpsData.latitude;
-//                        remoteControlLong = gpsData.longitude;
-//                    }
-//                }
-//            );
-//        }
     }
 
     /**
@@ -556,32 +546,18 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void runProgram(){
         programInstructions = new LinkedList<FlightInstructionsWithTime>();
 
-        FlightInstructionsWithTime first = new FlightInstructionsWithTime(generateFlightInstructions(0, 10, 0, 10), 5);
+        FlightInstructionsWithTime first = new FlightInstructionsWithTime(generateFlightInstructions(0, 5, 0, 10), 5);
         programInstructions.add(first);
 
-        FlightInstructionsWithTime second = new FlightInstructionsWithTime(generateFlightInstructions(1.736481777, 9.84807753,  0, 10), .750);
-        programInstructions.add(second);
+        double timeToRun = 0.1;
+        //5 seconds
+        for(int i = 1; i <= 50; i++){
+            FlightInstructionsWithTime toAdd1 = new FlightInstructionsWithTime(generateFlightInstructions(1.710100717, 4.698463104, 0, 10), timeToRun);
+            FlightInstructionsWithTime toAdd2 = new FlightInstructionsWithTime(generateFlightInstructions(-1.710100717, 4.698463104, 0, 10), timeToRun);
+            programInstructions.add(toAdd1);
+            programInstructions.add(toAdd2);
+        }
 
-        FlightInstructionsWithTime third = new FlightInstructionsWithTime(generateFlightInstructions(-1.736481777, 9.84807753, 0, 10), .750);
-        programInstructions.add(third);
-
-        FlightInstructionsWithTime fourth = new FlightInstructionsWithTime(generateFlightInstructions( 1.736481777, 9.84807753, 0, 10), .500);
-        programInstructions.add(fourth);
-
-        FlightInstructionsWithTime fifth = new FlightInstructionsWithTime(generateFlightInstructions(-1.736481777, 9.84807753, 0, 10), .500);
-        programInstructions.add(fifth);
-
-        FlightInstructionsWithTime sixth = new FlightInstructionsWithTime(generateFlightInstructions( 1.736481777, 9.84807753, 0, 10), .250);
-        programInstructions.add(sixth);
-
-        FlightInstructionsWithTime seventh = new FlightInstructionsWithTime(generateFlightInstructions(-1.736481777, 9.84807753, 0, 10), .250);
-        programInstructions.add(seventh);
-
-        FlightInstructionsWithTime eigth = new FlightInstructionsWithTime(generateFlightInstructions(1.736481777, 9.84807753, 0, 10), .100);
-        programInstructions.add(eigth);
-
-        FlightInstructionsWithTime ninth = new FlightInstructionsWithTime(generateFlightInstructions(-1.736481777, 9.84807753, 0, 10), .100);
-        programInstructions.add(ninth);
 
         runProgramRecursive();
     }
@@ -599,8 +575,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     }
                 } else {
                     mFlightController.sendVirtualStickFlightControlData(currentInstructions.getInstructions(), null);
-                    globalString = Double.toString(currentInstructions.getTime());
-                    //globalString = checkIfFloatContainsNegative(currentInstructions.getInstructions().getPitch()) + " " + Double.toString(currentInstructions.getTime());
+                    //globalString = Double.toString(currentInstructions.getTime());
+                    globalString = Float.toString(currentInstructions.getInstructions().getPitch());
                 }
             }
         }, 0, 100);
