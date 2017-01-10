@@ -16,7 +16,7 @@ import java.nio.channels.FileChannel;
  */
 public class DbHelper extends SQLiteOpenHelper {
 
-    private static final int DB_VERSION = 67;
+    private static final int DB_VERSION = 68;
 
     private static final String DB_NAME = "SensorData.db";
 
