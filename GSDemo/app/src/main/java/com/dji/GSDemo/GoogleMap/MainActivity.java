@@ -546,14 +546,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void runProgram(){
         programInstructions = new LinkedList<FlightInstructionsWithTime>();
 
-        FlightInstructionsWithTime first = new FlightInstructionsWithTime(generateFlightInstructions(0, 5, 0, 10), 5);
+        FlightInstructionsWithTime first = new FlightInstructionsWithTime(generateFlightInstructions(0, 2, 0, 10), 5);
         programInstructions.add(first);
 
-        double timeToRun = 0.1;
+        double timeToRun = 2;
         //5 seconds
-        for(int i = 1; i <= 50; i++){
-            FlightInstructionsWithTime toAdd1 = new FlightInstructionsWithTime(generateFlightInstructions(1.710100717, 4.698463104, 0, 10), timeToRun);
-            FlightInstructionsWithTime toAdd2 = new FlightInstructionsWithTime(generateFlightInstructions(-1.710100717, 4.698463104, 0, 10), timeToRun);
+        for(int i = 0; i <= 5; i++){
+            FlightInstructionsWithTime toAdd1 = new FlightInstructionsWithTime(generateFlightInstructions(0.0873, 2.0, 0, 10), timeToRun);
+            FlightInstructionsWithTime toAdd2 = new FlightInstructionsWithTime(generateFlightInstructions(-0.0873, 2.0, 0, 10), timeToRun);
             programInstructions.add(toAdd1);
             programInstructions.add(toAdd2);
         }
@@ -590,12 +590,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
 
-    private DJIFlightControllerDataType.DJIVirtualStickFlightControlData generateFlightInstructions(double speed, double roll, double yaw, double altitude){
-        return new DJIFlightControllerDataType.DJIVirtualStickFlightControlData((float)speed, (float) roll, (float)yaw, (float)altitude);
+    private DJIFlightControllerDataType.DJIVirtualStickFlightControlData generateFlightInstructions(double pitch, double roll, double yaw, double altitude){
+        return new DJIFlightControllerDataType.DJIVirtualStickFlightControlData((float)pitch, (float) roll, (float)yaw, (float)altitude);
     }
 
-    private DJIFlightControllerDataType.DJIVirtualStickFlightControlData generateFlightInstructions(float speed, float roll, float yaw, float altitude){
-        return new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(speed, roll, yaw, altitude);
+    private DJIFlightControllerDataType.DJIVirtualStickFlightControlData generateFlightInstructions(float pitch, float roll, float yaw, float altitude){
+        return new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(pitch, roll, yaw, altitude);
     }
 
     private void cancelTimer(){
@@ -780,7 +780,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             setResultToToast(exception.getMessage().toString());
         }
 
-        //Start the sampler - Hard code this to be once a second
+        //Start the sampler - Hard code this to be 10 times a second
         StartSampler(100);
         setResultToToast("Sampler Started");
     }
